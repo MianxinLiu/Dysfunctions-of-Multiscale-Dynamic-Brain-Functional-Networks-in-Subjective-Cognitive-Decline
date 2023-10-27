@@ -201,7 +201,7 @@ print('|test accuracy:', accuracy,
       '|test auc_pr:', auc_pr,
       )
 qual_all.append([accuracy, sens, spec, auc, auc_pr])
-scio.savemat('./metrics/Test_MV.mat', {'qualified': qualified, 'predicted_all': predicted_all, 'predict_p': predict_p})
+scio.savemat('./metrics/Test_MV.mat', {'metrics': qual_all, 'predicted_all': predicted_all, 'predict_p':predict_p, 'test_y_all': test_y_all})
 
 ## external testing (individual model)
 

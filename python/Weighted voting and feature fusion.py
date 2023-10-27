@@ -297,7 +297,7 @@ for cv in [1,2,3,4,5]:
 
 print(np.mean(qualified, axis=0))
 print(np.std(qualified, axis=0))
-scio.savemat('./metrics/gc_lstm_att_fea_con.mat', {'qualified': qualified})
+scio.savemat('./metrics/gc_lstm_att_FC.mat', {'qualified': qualified})
 
 ## external testing (integrated using majority voting)
 
@@ -408,7 +408,7 @@ print('|test accuracy:', accuracy,
       '|test auc_pr:', auc_pr,
       )
 qual_all.append([accuracy, sens, spec, auc, auc_pr])
-scio.savemat('./metrics/Test_FC.mat', {'qualified': qualified, 'predicted_all': predicted_all, 'test_y_all':test_y_all })
+scio.savemat('./metrics/Test_FC.mat', {'metrics': qual_all, 'predicted_all': predicted_all, 'predict_p':predicted_p, 'test_y_all':test_y_all })
 
 ## external testing (individual model)
 neg=0
