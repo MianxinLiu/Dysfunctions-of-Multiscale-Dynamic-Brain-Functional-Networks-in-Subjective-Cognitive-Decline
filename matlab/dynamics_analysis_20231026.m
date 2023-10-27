@@ -4,7 +4,7 @@ load('label.mat');
 nc=find(label==0);
 scd=find(label==1);
 
-load('att_feacon.mat')
+load('att_all.mat')
 att=reshape(att,[176,5,5,22]);
 
 %% normalize att
@@ -62,6 +62,7 @@ for sub=1:4
     subplot(2,2,sub)
     plot(squeeze(att_z_m(5+sub,:,:))')
 end
+
 %% load FC
 % FC_scales=cell(1,5);
 % for i=100:100:500
@@ -112,7 +113,6 @@ hh=zeros(s*100,s*100);
 pp=zeros(s*100,s*100);
 for i=1:(s*100)
     for j=(i+1):(s*100)
-%         [hh(i,j), pp(i,j)]=ttest2(squeeze(nc_state(:,i,j)),squeeze(scd_state(:,i,j)));
         [pp(i,j), hh(i,j)]=ranksum(squeeze(nc_state(:,i,j)),squeeze(scd_state(:,i,j)));
     end
 end
@@ -133,13 +133,15 @@ for s=1:5
     FC_all=FC_scales{s};
     temp=squeeze(att_z_m(:,s,:));
     temp=reshape(temp,[1,176*22]);
+	% by group
 %     FC_all=reshape(FC_all,[176*22,s*100,s*100]);
 
     nc_state=FC_all(label==0,:,:,:);
     nc_state=reshape(nc_state,[64*22,s*100,s*100]);
     scd_state=FC_all(label==1,:,:,:);
     scd_state=reshape(scd_state,[112*22,s*100,s*100]);
-
+	
+	% by group
 %     nc_state=FC_all(temp<=0,:,:);
 %     scd_state=FC_all(temp>0,:,:);
     
@@ -163,10 +165,9 @@ for s=1:5
     incrhh=newhh&(diff>0);
     decrhh=newhh&(diff<0);
 
-    load('/media/user/4TB/matlab/renji/par.mat')
+    load('par.mat')
     temp=par(1:(s*100),s);
     temp(((s*100)/2+1):(s*100))=temp(((s*100)/2+1):(s*100))+7;
-    % label=unique(temp);
     okgrid=zeros(14,14);
     RSN1=zeros(14,14);
     for i=1:14
@@ -176,7 +177,6 @@ for s=1:5
             else
                 RSN1(i,j)=sum(sum(incrhh(find(temp==i),find(temp==j))))/sum((temp==i))/sum(temp==j);
             end
-    %           RSN1(i,j)=sum(sum(p1_2(find(temp==i),find(temp==j))));
             okgrid(i,j)=1;
         end
     end
@@ -186,7 +186,6 @@ for s=1:5
     set(h,'alphadata',okgrid);
     colormap('jet');
     
-    % label=unique(temp);
     okgrid=zeros(14,14);
     RSN1=zeros(14,14);
     for i=1:14
@@ -196,7 +195,6 @@ for s=1:5
             else
                 RSN1(i,j)=sum(sum(decrhh(find(temp==i),find(temp==j))))/sum((temp==i))/sum(temp==j);
             end
-    %           RSN1(i,j)=sum(sum(p1_2(find(temp==i),find(temp==j))));
               okgrid(i,j)=1;
         end
     end
@@ -255,6 +253,7 @@ for s=1:5
     FC_all=FC_scales{s};
     temp=squeeze(att_z_m(:,s,:));
     temp=reshape(temp,[1,176*22]);
+	% by group
 %     FC_all=reshape(FC_all,[176*22,s*100,s*100]);
     
     nc_state=FC_all(label==0,:,:,:);
@@ -262,7 +261,7 @@ for s=1:5
     scd_state=FC_all(label==1,:,:,:);
     scd_state=reshape(scd_state,[112*22,s*100,s*100]);
 
-
+	% by group
 %     nc_state=FC_all(temp<=0,:,:);
 %     scd_state=FC_all(temp>0,:,:);
     
@@ -288,7 +287,7 @@ for s=1:5
     load('/media/user/4TB/matlab/renji/par.mat')
     temp=par(1:(s*100),s);
     temp((s*100)/2:(s*100))=temp((s*100)/2:(s*100))+7;
-    % label=unique(temp);
+
     okgrid=zeros(14,14);
     RSN1=zeros(14,14);
     for i=1:14
@@ -298,7 +297,6 @@ for s=1:5
             else
                 RSN1(i,j)=sum(sum(incrhh(find(temp==i),find(temp==j))))/sum((temp==i))/sum(temp==j);
             end
-    %           RSN1(i,j)=sum(sum(p1_2(find(temp==i),find(temp==j))));
               okgrid(i,j)=1;
         end
     end
@@ -308,7 +306,6 @@ for s=1:5
     set(h,'alphadata',okgrid);
     colormap('jet');
     
-    % label=unique(temp);
     okgrid=zeros(14,14);
     RSN1=zeros(14,14);
     for i=1:14
@@ -318,7 +315,6 @@ for s=1:5
            else
                 RSN1(i,j)=sum(sum(decrhh(find(temp==i),find(temp==j))))/sum((temp==i))/sum(temp==j);
            end
-    %           RSN1(i,j)=sum(sum(p1_2(find(temp==i),find(temp==j))));
               okgrid(i,j)=1;
         end
     end
@@ -331,7 +327,6 @@ end
 
 %% network level differences
 Q=zeros(5,3872);
-%     Eloc=zeros(1,3872);
 Eg=zeros(5,3872);
 th=0.2;
 for s=1:5
@@ -343,9 +338,7 @@ for s=1:5
     for i=1:3872
         G=squeeze(FC_all(i,:,:)).*zerodiag;
         [~,Q(s,i)] = modularity_und(G);
-%         [~,Eg(s,i)] = charpath(G);
         Eg(s,i) = efficiency_wei(G);
-%         Eloc(i) = mean(efficiency_wei(G,2));
     end
 end
 save(['networkmetric_th' num2str(th),'.mat'],'Eg','Q');
@@ -356,6 +349,7 @@ for s=1:5
     temp=squeeze(att_z_m(:,s,:));
     temp=reshape(temp,[1,176*22]);
     pos=(temp<=0);
+	
     % by group
 %     pos=zeros(176,22);
 %     pos(label==0,:)=1;
@@ -370,6 +364,8 @@ for s=1:5
     
     set(gca,'xlim',[0.5,5.8]);
     set(gca,'ylim',[0,0.57]);
+	
+	% no thresholding
 %     set(gca,'ylim',[0,20]);
     set(gca,'xtick',[(1:5)+0.15])
     set(gca,'xticklabel',{'100 ROIs','200 ROIs','300 ROIs','400 ROIs','500 ROIs'})
@@ -380,16 +376,19 @@ for s=1:5
     if ranksum(Q(s,pos),Q(s,~pos))<0.05
        plot([s,s+0.3],[0.50,0.50],'k-','LineWidth',2)
        scatter(s+0.15,0.52,32,'k*')
-%         plot([s,s+0.3],[17,17],'k-','LineWidth',2)
+	   % no thresholding
+%        plot([s,s+0.3],[17,17],'k-','LineWidth',2)
 %        scatter(s+0.15,18,32,'k*')
     end
     if ranksum(Q(s,pos),Q(s,~pos))<0.01
-%        scatter(s+0.15,18.5,32,'k*')
         scatter(s+0.15,0.54,32,'k*')
+		% no thresholding
+%       scatter(s+0.15,18.5,32,'k*')
     end
     if ranksum(Q(s,pos),Q(s,~pos))<0.001
-%        scatter(s+0.15,19,32,'k*')
         scatter(s+0.15,0.56,32,'k*')
+		% no thresholding
+%       scatter(s+0.15,19,32,'k*')
     end
 end
 
@@ -414,6 +413,7 @@ for s=1:5
     
     set(gca,'xlim',[0.5,5.8]);
     set(gca,'ylim',[0.2,0.9]);
+	% no thresholding
 %     set(gca,'ylim',[-0.2,0.1]);
     set(gca,'xtick',[(1:5)+0.15])
     set(gca,'xticklabel',{'100 ROIs','200 ROIs','300 ROIs','400 ROIs','500 ROIs'})
@@ -424,19 +424,21 @@ for s=1:5
     if ranksum(Eg(s,pos),Eg(s,~pos))<0.05
        plot([s,s+0.3],[0.80,0.80],'k-','LineWidth',2)
        scatter(s+0.15,0.82,32,'k*')
+	   % no thresholding
 %        plot([s,s+0.3],[0,0],'k-','LineWidth',2)
 %        scatter(s+0.15,0.01,32,'k*')
     end
     if ranksum(Eg(s,pos),Eg(s,~pos))<0.01
        scatter(s+0.15,0.84,32,'k*')
+	   % no thresholding
 %         scatter(s+0.15,0.02,32,'k*')
     end
      if ranksum(Eg(s,pos),Eg(s,~pos))<0.001
          scatter(s+0.15,0.86,32,'k*')
+		 % no thresholding
 %        scatter(s+0.15,0.03,32,'k*')
     end
 end
-
 
 %% dwell time and frequency group
 
@@ -501,16 +503,8 @@ set(gca,'ylim',[0,0.6]);
 s=3;
 % dt=squeeze(mean(att_z_m(:,s,:),3));
 dt=std(squeeze(att_z_m(:,s,:)),0,2);
-% dt=sum(dt,2);
 
 load('metrics_sort.mat')
-
-% load('dwelltime.mat')
-% valid=find(dt~=0&dt~=22);
-% valid=find(metrics(:,1)>=20);
-
-% 1 mmse 2 moca 3 avltn5 4 atltn7 5 aft 6 bnt 7 stta 8 sttb 9 faq
-% 10 scd 11-14 scd abcd
 
 r=zeros(1,9);
 p=zeros(1,9);
