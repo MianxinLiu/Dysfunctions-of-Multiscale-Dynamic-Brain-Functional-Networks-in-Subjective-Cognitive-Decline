@@ -297,7 +297,7 @@ for cv in [1,2,3,4,5]:
 
 print(np.mean(qualified, axis=0))
 print(np.std(qualified, axis=0))
-scio.savemat('./metrics/gc_lstm_att_FeaCon.mat', {'qualified': qualified})
+scio.savemat('./metrics/gc_lstm_att_fea_con.mat', {'qualified': qualified})
 
 ## external testing (integrated using majority voting)
 
