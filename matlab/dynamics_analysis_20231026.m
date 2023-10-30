@@ -284,7 +284,7 @@ for s=1:5
     incrhh=newhh&(diff>0);
     decrhh=newhh&(diff<0);
 
-    load('/media/user/4TB/matlab/renji/par.mat')
+    load('par.mat')
     temp=par(1:(s*100),s);
     temp((s*100)/2:(s*100))=temp((s*100)/2:(s*100))+7;
 
